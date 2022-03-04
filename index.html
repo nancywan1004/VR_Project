@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script src="https://aframe.io/releases/1.3.0/aframe.min.js"></script>
+    <script src="https://unpkg.com/aframe-environment-component@1.1.0/dist/aframe-environment-component.min.js"></script>
+    <script src="https://unpkg.com/aframe-teleport-controls@0.3.x/dist/aframe-teleport-controls.min.js"></script>
+    <script src="https://unpkg.com/aframe-controller-cursor-component@0.2.x/dist/aframe-controller-cursor-component.min.js"></script>
+    <script src="https://rawgit.com/ngokevin/kframe/csstricks/scenes/aincraft/components/random-color.js"></script>
+    <script src="https://rawgit.com/ngokevin/kframe/csstricks/scenes/aincraft/components/snap.js"></script>
+    <script src="https://rawgit.com/ngokevin/kframe/csstricks/scenes/aincraft/components/intersection-spawn.js"></script>
+  </head>
+
+  <script>
+    var boundaries = {x: [-20, 20], y: [0, 10], z: [-20, 20]}
+
+    function checkWithinBoundaries(pos) {
+      return pos.x >= boundaries.x[0] && pos.x <= boundaries.x[1] && pos.y >= boundaries.y[0] && pos.y <= boundaries.y[1] && pos.z >= boundaries.z[0] && pos.z <= boundaries.z[1];
+    }
+
+    function getRandomArbitrary(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function changeRandomDirection(pos, rot) {
+      if (pos.x < boundaries.x[0] && pos.x > boundaries.x[1]) {
+        rot.x += getRandomArbitrary(Math.PI / 2, Math.PI)
+      }
+
+      if (pos.y < boundaries.y[0] && pos.y > boundaries.y[1]) {
+        rpt.y += getRandomArbitrary(Math.PI / 2, Math.PI)
+      }
+
+      if (pos.z < boundaries.z[0] && pos.z > boundaries.z[1]) {
+        rot.z += getRandomArbitrary(Math.PI / 2, Math.PI)
+      }
+
+    }
+      AFRAME.registerComponent('fish', {
+    schema: {
+      from: {default: {x: 2, y: 2, z: -2}, type: 'vec3'},
+      to: {default:  {x: 2, y: 2, z: -4}, type: 'vec3'},
+      speed: {default: 0.01, type: 'number'},
+      direction: {default: {x: -1, y: 0, z: -1}, type: 'vec3'}
+    },
+
+    init: function () {
+      var data = this.data;
+      var el = this.el;
+      el.object3D.position.copy(data.from)
+      this.el.addEventListener('click', function () {
+        // console.log("data.to is: " + data.to)
+        console.log("quaternion" + el.object3D.quaternion.x)
+        console.log("rotation" + el.object3D.rotation.x)
+        // el.object3D.scale.copy(data.to);
+        el.object3D.position.copy(data.to)
+      });
+    },
+
+    tick: function () {
+      var data = this.data;
+      var el = this.el
+      if (checkWithinBoundaries(el.object3D.position)) {
+        el.object3D.position.x += data.speed * data.direction.x
+        el.object3D.position.z += data.speed * data.direction.z
+      }
+    
+    }
+  });
+  </script>
+  
+  <body>
+    <a-scene>
+      <a-assets>
+        <img id="boxTexture" crossorigin="anonymous" src="https://i.imgur.com/mYmmbrp.jpg">
+        <img id="groundTexture" src="./images/vr_ground3.png">
+        <!-- <img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg"> -->
+        <img id="skyTexture"
+        src="./images/vr_bg.png">
+        <audio id="bgSound" crossorigin="anonymous" src="https://cdn.aframe.io/basic-guide/audio/backgroundnoise.wav" autoplay="true"
+        preload="auto"></audio>
+        <!-- <img id="skyTexture"
+        src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg"> -->
+        <!-- <img id="skyTexture" src="https://cdn.aframe.io/a-painter/images/sky.jpg"> -->
+      
+        <!-- Prefabs -->
+        <a-mixin id="voxel"
+           geometry="primitive: box; height: 0.5; width: 0.5; depth: 0.5"
+           material="shader: standard"
+           random-color
+           snap="offset: 0.25 0.25 0.25; snap: 0.5 0.5 0.5"
+        ></a-mixin>
+        <a-mixin id="fish"
+        geometry="primitive: box; height: 0.5; width: 0.5; depth: 0.5"
+        material="src: https://i.imgur.com/mYmmbrp.jpg"
+        snap="offset: 0.25 0.25 0.25; snap: 0.5 0.5 0.5"
+        fish></a-mixin>
+      </a-assets>
+  
+      <a-cylinder id="ground" src="#groundTexture" radius="100" height="0.1"></a-cylinder>
+  
+      <!-- <a-sky id="background" src="#skyTexture" theta-length="90" radius="30"></a-sky> -->
+      <a-sky id="background" src="#skyTexture" radius="100" theta-length="90" ></a-sky>
+
+      <!-- <a-box src="#boxTexture" position="0 2 -5" rotation="0 45 45" scale="2 2 2"
+      animation="property: object3D.position.y; to: 2.2; dir: alternate; dur: 2000; loop: true"
+      fish></a-box> -->
+      <a-entity mixin="fish"></a-entity>
+
+      <!-- Audio -->
+      <a-sound src="#bgSound"
+      position="2 2 2"></a-sound>
+
+  
+      <!-- Hands. -->
+      <a-entity id="teleHand" hand-controls="left" teleport-controls="type: parabolic; collisionEntities: [mixin='fish'], #ground"></a-entity>
+      <a-entity id="blockHand" hand-controls="right" controller-cursor intersection-spawn="event: click; mixin: fish"></a-entity>
+  
+      <!-- Camera. -->
+      <a-camera>
+        <a-cursor intersection-spawn="event: click; mixin: fish"></a-cursor>
+      </a-camera>
+      <!-- <a-camera>
+        <a-cursor intersection-spawn="event: click; mixin: voxel"></a-cursor>
+      </a-camera> -->
+    </a-scene>
+  </body>
+
+</html>
