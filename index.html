@@ -10,77 +10,19 @@
     <script src="https://rawgit.com/ngokevin/kframe/csstricks/scenes/aincraft/components/intersection-spawn.js"></script>
   </head>
 
-  <script>
-    var boundaries = {x: [-20, 20], y: [0, 10], z: [-20, 20]}
-
-    function checkWithinBoundaries(pos) {
-      return pos.x >= boundaries.x[0] && pos.x <= boundaries.x[1] && pos.y >= boundaries.y[0] && pos.y <= boundaries.y[1] && pos.z >= boundaries.z[0] && pos.z <= boundaries.z[1];
-    }
-
-    function getRandomArbitrary(min, max) {
-      return Math.random() * (max - min) + min;
-    }
-
-    function changeRandomDirection(pos, rot) {
-      if (pos.x < boundaries.x[0] && pos.x > boundaries.x[1]) {
-        rot.x += getRandomArbitrary(Math.PI / 2, Math.PI)
-      }
-
-      if (pos.y < boundaries.y[0] && pos.y > boundaries.y[1]) {
-        rpt.y += getRandomArbitrary(Math.PI / 2, Math.PI)
-      }
-
-      if (pos.z < boundaries.z[0] && pos.z > boundaries.z[1]) {
-        rot.z += getRandomArbitrary(Math.PI / 2, Math.PI)
-      }
-
-    }
-      AFRAME.registerComponent('fish', {
-    schema: {
-      from: {default: {x: 2, y: 2, z: -2}, type: 'vec3'},
-      to: {default:  {x: 2, y: 2, z: -4}, type: 'vec3'},
-      speed: {default: 0.01, type: 'number'},
-      direction: {default: {x: -1, y: 0, z: -1}, type: 'vec3'}
-    },
-
-    init: function () {
-      var data = this.data;
-      var el = this.el;
-      el.object3D.position.copy(data.from)
-      this.el.addEventListener('click', function () {
-        // console.log("data.to is: " + data.to)
-        console.log("quaternion" + el.object3D.quaternion.x)
-        console.log("rotation" + el.object3D.rotation.x)
-        // el.object3D.scale.copy(data.to);
-        el.object3D.position.copy(data.to)
-      });
-    },
-
-    tick: function () {
-      var data = this.data;
-      var el = this.el
-      if (checkWithinBoundaries(el.object3D.position)) {
-        el.object3D.position.x += data.speed * data.direction.x
-        el.object3D.position.z += data.speed * data.direction.z
-      }
-    
-    }
-  });
-  </script>
+  <script src="./components/fish.js"></script>
   
   <body>
     <a-scene>
       <a-assets>
+        <a-asset-item id="whale-obj" src="./assets/models/whale.obj"></a-asset-item>
+        <a-asset-item id="whale-mtl" src="./assets/models/whale.mtl"></a-asset-item>
         <img id="boxTexture" crossorigin="anonymous" src="https://i.imgur.com/mYmmbrp.jpg">
-        <img id="groundTexture" src="./images/vr_ground3.png">
-        <!-- <img id="groundTexture" src="https://cdn.aframe.io/a-painter/images/floor.jpg"> -->
+        <img id="groundTexture" src="./assets/images/vr_ground3.png">
         <img id="skyTexture"
-        src="./images/vr_bg.png">
+        src="./assets/images/vr_bg.png">
         <audio id="bgSound" crossorigin="anonymous" src="https://cdn.aframe.io/basic-guide/audio/backgroundnoise.wav" autoplay="true"
         preload="auto"></audio>
-        <!-- <img id="skyTexture"
-        src="https://cdn.aframe.io/360-image-gallery-boilerplate/img/sechelt.jpg"> -->
-        <!-- <img id="skyTexture" src="https://cdn.aframe.io/a-painter/images/sky.jpg"> -->
       
         <!-- Prefabs -->
         <a-mixin id="voxel"
@@ -97,14 +39,12 @@
       </a-assets>
   
       <a-cylinder id="ground" src="#groundTexture" radius="100" height="0.1"></a-cylinder>
-  
-      <!-- <a-sky id="background" src="#skyTexture" theta-length="90" radius="30"></a-sky> -->
+
       <a-sky id="background" src="#skyTexture" radius="100" theta-length="90" ></a-sky>
 
-      <!-- <a-box src="#boxTexture" position="0 2 -5" rotation="0 45 45" scale="2 2 2"
-      animation="property: object3D.position.y; to: 2.2; dir: alternate; dur: 2000; loop: true"
-      fish></a-box> -->
       <a-entity mixin="fish"></a-entity>
+      <a-obj-model src="#whale-obj" mtl="#whale-mtl"></a-obj-model>
+      <!-- <a-entity obj-model="obj: #whale-obj; mtl: #whale-mtl"></a-entity> -->
 
       <!-- Audio -->
       <a-sound src="#bgSound"
@@ -113,15 +53,12 @@
   
       <!-- Hands. -->
       <a-entity id="teleHand" hand-controls="left" teleport-controls="type: parabolic; collisionEntities: [mixin='fish'], #ground"></a-entity>
-      <a-entity id="blockHand" hand-controls="right" controller-cursor intersection-spawn="event: click; mixin: fish"></a-entity>
+      <a-entity id="blockHand" hand-controls="right" laser-controls intersection-spawn="event: click; mixin: fish"></a-entity>
   
       <!-- Camera. -->
       <a-camera>
         <a-cursor intersection-spawn="event: click; mixin: fish"></a-cursor>
       </a-camera>
-      <!-- <a-camera>
-        <a-cursor intersection-spawn="event: click; mixin: voxel"></a-cursor>
-      </a-camera> -->
     </a-scene>
   </body>
 

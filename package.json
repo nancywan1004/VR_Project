@@ -1,0 +1,22 @@
+{
+  "name": "vr_project",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nancywan1004/VR_Project.git"
+  },
+  "author": "Nancy Wan",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nancywan1004/VR_Project/issues"
+  },
+  "homepage": "https://github.com/nancywan1004/VR_Project#readme",
+  "dependencies": {
+    "three": "^0.138.3"
+  }
+}
